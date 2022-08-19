@@ -1,6 +1,7 @@
 SRC_DIR := src
 OBJ_DIR := obj
 BIN_DIR := bin
+INCLUDE := -I include
 
 EXE := $(BIN_DIR)/serf
 
@@ -17,10 +18,10 @@ targets = serf
 all: $(EXE)
 
 $(EXE): $(OBJ) | $(BIN_DIR)
-	$(CC) $^ $(LDFLAGS) -o $@
+	$(CC) $(INCLUDE) $^ $(LDFLAGS) -o $@
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(INCLUDE) $(CFLAGS) -c $< -o $@
 
 
 $(BIN_DIR) $(OBJ_DIR):
