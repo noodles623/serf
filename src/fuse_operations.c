@@ -1,9 +1,12 @@
-#include "serf_fs.h"
+#include "fuse_operations.h"
 
 #include <assert.h>
 #include <errno.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "fs.h"
+#include "data.h"
 
 static const char *serf_str = "Hello serf\n";
 static const char *serf_name= "serf";
@@ -29,7 +32,7 @@ static int hello_stat(fuse_ino_t ino, struct stat *stbuf)
 	return 0;
 }
 
-void serf_fs_getattr(fuse_req_t req, fuse_ino_t ino,
+void serf_getattr(fuse_req_t req, fuse_ino_t ino,
         struct fuse_file_info *fi)
 {
 	struct stat stbuf;
@@ -43,7 +46,7 @@ void serf_fs_getattr(fuse_req_t req, fuse_ino_t ino,
 		fuse_reply_attr(req, &stbuf, 1.0);
 }
 
-void serf_fs_lookup(fuse_req_t req, fuse_ino_t parent, const char *name)
+void serf_lookup(fuse_req_t req, fuse_ino_t parent, const char *name)
 {
 	struct fuse_entry_param e;
 
@@ -60,24 +63,6 @@ void serf_fs_lookup(fuse_req_t req, fuse_ino_t parent, const char *name)
 	}
 }
 
-struct dirbuf {
-	char *p;
-	size_t size;
-};
-
-static void dirbuf_add(fuse_req_t req, struct dirbuf *b, const char *name,
-		       fuse_ino_t ino)
-{
-	struct stat stbuf;
-	size_t oldsize = b->size;
-	b->size += fuse_add_direntry(req, NULL, 0, name, NULL, 0);
-	b->p = (char *) realloc(b->p, b->size);
-	memset(&stbuf, 0, sizeof(stbuf));
-	stbuf.st_ino = ino;
-	fuse_add_direntry(req, b->p + oldsize, b->size - oldsize, name, &stbuf,
-			  b->size);
-}
-
 #define min(x, y) ((x) < (y) ? (x) : (y))
 
 int reply_buf_limited(fuse_req_t req, const char *buf, size_t bufsize, off_t off, size_t maxsize)
@@ -89,7 +74,7 @@ int reply_buf_limited(fuse_req_t req, const char *buf, size_t bufsize, off_t off
 		return fuse_reply_buf(req, NULL, 0);
 }
 
-void serf_fs_readdir(fuse_req_t req, fuse_ino_t ino, size_t size,
+void serf_readdir(fuse_req_t req, fuse_ino_t ino, size_t size,
 			     off_t off, struct fuse_file_info *fi)
 {
 	(void) fi;
@@ -97,7 +82,7 @@ void serf_fs_readdir(fuse_req_t req, fuse_ino_t ino, size_t size,
 	if (ino != 1)
 		fuse_reply_err(req, ENOTDIR);
 	else {
-		struct dirbuf b;
+		dirbuf_t b;
 
 		memset(&b, 0, sizeof(b));
 		dirbuf_add(req, &b, ".", 1);
@@ -108,7 +93,7 @@ void serf_fs_readdir(fuse_req_t req, fuse_ino_t ino, size_t size,
 	}
 }
 
-void serf_fs_open(fuse_req_t req, fuse_ino_t ino,
+void serf_open(fuse_req_t req, fuse_ino_t ino,
 			  struct fuse_file_info *fi)
 {
 	if (ino != 2)
@@ -120,7 +105,7 @@ void serf_fs_open(fuse_req_t req, fuse_ino_t ino,
 }
 
 
-void serf_fs_read(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off, struct fuse_file_info *fi)
+void serf_read(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off, struct fuse_file_info *fi)
 {
 	(void) fi;
 

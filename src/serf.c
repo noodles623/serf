@@ -6,14 +6,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "serf_fs.h"
+#include "fuse_operations.h"
 
 static const struct fuse_lowlevel_ops serf_oper = {
-	.lookup		= serf_fs_lookup,
-	.getattr	= serf_fs_getattr,
-	.readdir	= serf_fs_readdir,
-	.open		= serf_fs_open,
-	.read		= serf_fs_read,
+	.lookup		= serf_lookup,
+	.getattr	= serf_getattr,
+	.readdir	= serf_readdir,
+	.open		= serf_open,
+	.read		= serf_read,
 };
 
 int main(int argc, char *argv[])
