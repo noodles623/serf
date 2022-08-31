@@ -7,6 +7,8 @@
 
 #include <fuse_lowlevel.h>
 
+void serf_init(void *userdata, struct fuse_conn_info *conn);
+
 void serf_getattr(fuse_req_t req, fuse_ino_t ino,
         struct fuse_file_info *fi);
 
@@ -20,4 +22,5 @@ void serf_open(fuse_req_t req, fuse_ino_t ino,
 
 void serf_read(fuse_req_t req, fuse_ino_t ino, size_t size, off_t off, struct fuse_file_info *fi);
 
+void serf_write(fuse_req_t req, fuse_ino_t ino, const char *buf, size_t size, off_t off, struct fuse_file_info *fi);
 #endif

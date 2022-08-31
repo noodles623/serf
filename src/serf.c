@@ -9,11 +9,13 @@
 #include "fuse_operations.h"
 
 static const struct fuse_lowlevel_ops serf_oper = {
+    .init       = serf_init,
 	.lookup		= serf_lookup,
 	.getattr	= serf_getattr,
 	.readdir	= serf_readdir,
 	.open		= serf_open,
 	.read		= serf_read,
+    .write      = serf_write
 };
 
 int main(int argc, char *argv[])
